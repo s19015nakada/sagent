@@ -1,26 +1,51 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import request from 'superagent'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  constructor (props) {
+    super(props)
+    this.state = {
+      items: null
+    }
+  }
+
+  componentDidMount () {
+    request
+      .get('./fruits2.json')
+      .accept('application/json')
+      .end((err, res) => {
+        this.loadedJSON(err, res)
+      })
+  }
+
+  loadedJSON (err, res) {
+    if (err) {
+      console.log('JSON読み込みエラー')
+      return
+    }
+    this.setState({
+      items: res.body
+    })
+  }
+
+  render () {
+    if (!this.state.items) {
+      return <div className='App'>現在読み込み中</div>
+    }
+    const options = this.state.items.map(e => {
+      return (
+        <option value={e.price} key={e.name}>
+          {e.name}
+        </option>
+      )
+    })
+    return (
+      <div className='App'>
+        果物: <select>{options}</select>
+      </div>
+    )
+  }
 }
 
 export default App;
